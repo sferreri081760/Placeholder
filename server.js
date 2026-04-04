@@ -17,7 +17,22 @@ const mimeTypes = {
 };
 
 const server = http.createServer((req, res) => {
-  let filePath = path.join(__dirname, req.url === '/' ? 'index.html' : decodeURIComponent(req.url));
+  let requestPath;
+  try {
+    requestPath = decodeURIComponent(req.url === '/' ? '/index.html' : req.url);
+  } catch {
+    res.writeHead(400, { 'Content-Type': 'text/plain' });
+    res.end('Bad Request');
+    return;
+  }
+
+  const filePath = path.normalize(path.join(__dirname, requestPath));
+  if (!filePath.startsWith(__dirname + path.sep) && filePath !== __dirname) {
+    res.writeHead(403, { 'Content-Type': 'text/plain' });
+    res.end('Forbidden');
+    return;
+  }
+
   const ext = path.extname(filePath);
   const contentType = mimeTypes[ext] || 'application/octet-stream';
 
@@ -27,6 +42,7 @@ const server = http.createServer((req, res) => {
         res.writeHead(404, { 'Content-Type': 'text/plain' });
         res.end('Not Found');
       } else {
+        console.error(`Error reading file ${filePath}:`, err);
         res.writeHead(500, { 'Content-Type': 'text/plain' });
         res.end('Internal Server Error');
       }
