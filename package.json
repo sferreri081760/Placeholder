@@ -1,0 +1,11 @@
+{
+  "name": "placeholder",
+  "version": "1.0.0",
+  "description": "Accurate Trader placeholder page",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
